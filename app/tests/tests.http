@@ -1,0 +1,212 @@
+@host = localhost:8000
+@token = Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoyLCJ1c2VybmFtZSI6InN0dWRlbnQiLCJyb2xlVHlwZSI6InN0dWRlbnQiLCJzdHVkeUdyb3VwIjoxLCJleHAiOjE3NDk1NTgyNTN9.ayHzdkYfVF6JkH5MN0w0U-XRzg9rDeRLVYYSHAwnjI8
+
+###
+# Получение данных пользователя
+GET http://{{host}}/user_data
+Authorization: {{token}}
+Content-Type: application/json
+
+###
+# Получение статуса пользователя
+GET http://{{host}}/user_status
+Authorization: {{token}}
+Content-Type: application/json
+
+###
+# Регистрация пользователя
+POST http://{{host}}/register
+Content-Type: application/json
+
+{
+    "first_name": "asdfdf",
+    "last_name": "dsfsdf",
+    "middle_name": "sdfsfdsf",
+    "username": "student",
+    "password": "student",
+    "group_name": "211-365"
+}
+
+###
+# Логирование пользователя
+POST http://{{host}}/login
+Content-Type: application/json
+
+{
+    "username": "student",
+    "password": "student"
+}
+
+### Получение предметов пользователя
+GET http://{{host}}/subjects
+Authorization: {{token}}
+Content-Type: application/json
+
+### Получение тасков с subject_id=1
+GET http://{{host}}/tasks/1
+Authorization: {{token}}
+Content-Type: application/json
+
+###
+# Загрузка решения задачи в Task с ID 1
+POST http://{{host}}/upload/1
+Authorization: {{token}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="solution.py"
+Content-Type: text/x-python
+
+inputs = input().split()  # Разделение строки на список
+a1 = int(inputs[0])  # Преобразуем первое значение в число
+a2 = int(inputs[1])  # Преобразуем второе значение в число
+a3 = int(inputs[2])  # Преобразуем третье значение в число
+
+b1 = a1 + a2 - a3  # Выполняем расчет для b1
+b2 = b1 + a2  # Выполняем расчет для b2
+
+print(b1, b2)  # Выводим результаты
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### Тестирование последнего загруженного решения задачи с Task ID 1
+POST http://{{host}}/test/1
+Authorization: {{token}}
+Content-Type: application/json
+
+### Получение информации о задаче с Task ID 1 и статусе решений пользователя
+GET http://{{host}}/task/3
+Authorization: {{token}}
+Content-Type: application/json
+
+###
+GET http://{{host}}/docs
+Content-Type: text/html
+
+### Teacher
+# Получение списка студентов факультета
+GET http://{{host}}/api/teachers/students/1
+Authorization: {{token}}
+Content-Type: application/json
+
+### Получение списка студентов по группе
+GET http://{{host}}/api/teachers/groups/1/students
+Authorization: {{token}}
+Content-Type: application/json
+
+### Получение списка лабораторных работ студента
+GET http://{{host}}/api/teachers/students/2/subjects/1/labs
+Authorization: {{token}}
+Content-Type: application/json
+
+### Получение информации о конкретной лабораторной работе студента
+GET http://{{host}}/api/teachers/students/1/labs/3/lab
+Authorization: {{token}}
+Content-Type: application/json
+
+### Получение списка групп факультета
+GET http://{{host}}/api/teachers/groups/1
+Authorization: {{token}}
+Content-Type: application/json
+
+### Получение групп преподавателя
+GET http://{{host}}/api/teachers/groups
+Authorization: {{token}}
+Content-Type: application/json
+
+### Получение всех лаб
+GET http://{{host}}/labs
+Authorization: {{token}}
+Content-Type: application/json
+
+### Получение всех групп
+GET http://{{host}}/api/groups
+Content-Type: application/json
+
+### Получение дисциплин преподавателя
+GET http://{{host}}/api/teachers/subjects
+Authorization: {{token}}
+Accept: application/json
+
+### Создание лабы
+POST http://{{host}}/api/teachers/lab
+Authorization: {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "task": {
+    "id": 1,
+    "name": "Лабораторная работа №2. Python - разность двух чисел",
+    "description": "Пример входных данных: 5 9\nПример выходных данных: -4\n",
+    "teacher_formula": "x - y",
+    "input_variables": "a, b",
+    "subject_id": 1,
+    "test_cases": [
+      {
+        "id": 1,
+        "inp": "5 15",
+        "out": "-10"
+      },
+      {
+        "id": 2,
+        "inp": "-5 -5",
+        "out": "0"
+      }
+    ]
+  }
+}
+
+### Получение лабораторных работ
+GET http://{{host}}/api/teachers/labs
+Authorization: {{token}}
+Accept: application/json
+
+### Удаление лабораторной работы
+DELETE http://{{host}}/api/teachers/unpublished_labs/17
+Authorization: {{token}}
+Accept: application/json
+
+### Редактирование лабораторной работы
+PUT http://{{host}}/api/teachers/labs/1
+Authorization: {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "task": {
+    "id": 1,
+    "name": "Updated Вася",
+    "description": "Updated",
+    "teacher_formula": "Updated",
+    "input_variables": "Updated",
+    "subject_id": 1,
+    "test_cases": [
+      {
+        "id": 1,
+        "inp": "3 3",
+        "out": "0"
+      },
+      {
+        "id": 1,
+        "inp": "4 4",
+        "out": "0"
+      }
+    ]
+  }
+}
+
+### Получение информации о студенте
+GET http://{{host}}/api/teachers/students/2/info
+Authorization: {{token}}}
+Accept: application/json
+
+### Получение всех лаб студента
+GET http://{{host}}/api/teachers/students/2/labs
+Authorization: {{token}}
+Accept: application/json
+
+### Получение деталей лабы
+GET http://{{host}}/api/teachers/labs/1
+Authorization: {{token}}
+Accept: application/json
