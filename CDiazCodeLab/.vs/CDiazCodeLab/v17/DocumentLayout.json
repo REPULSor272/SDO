@@ -60,7 +60,7 @@
               "RelativeDocumentMoniker": "CDiazCodeLab\\Services\\RoslynCodeRunner.cs",
               "ToolTip": "C:\\Users\\User\\source\\repos\\SDO\\CDiazCodeLab\\CDiazCodeLab\\Services\\RoslynCodeRunner.cs",
               "RelativeToolTip": "CDiazCodeLab\\Services\\RoslynCodeRunner.cs",
-              "ViewState": "AgIAADwAAAAAAAAAAAAswBQAAAAmAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAAmAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-10-12T05:42:24.37Z",
               "EditorCaption": ""
@@ -75,8 +75,7 @@
               "RelativeToolTip": "CDiazCodeLab\\Services\\TestCaseLoader.cs",
               "ViewState": "AgIAAAQAAAAAAAAAAADwvxUAAAAsAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-12T05:39:46.38Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-12T05:39:46.38Z"
             },
             {
               "$type": "Document",
@@ -88,8 +87,7 @@
               "RelativeToolTip": "CDiazCodeLab\\Services\\CodeCheckService.cs",
               "ViewState": "AgIAABMAAAAAAAAAAAAgwBIAAAA1AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-12T06:44:25.691Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-12T06:44:25.691Z"
             },
             {
               "$type": "Document",
@@ -101,8 +99,7 @@
               "RelativeToolTip": "CDiazCodeLab\\Models\\TestResult.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-12T05:35:45.675Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-12T05:35:45.675Z"
             },
             {
               "$type": "Document",
@@ -114,8 +111,7 @@
               "RelativeToolTip": "CDiazCodeLab\\Models\\TestCase.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAATAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-12T05:35:27.413Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-12T05:35:27.413Z"
             },
             {
               "$type": "Document",
@@ -127,8 +123,7 @@
               "RelativeToolTip": "CDiazCodeLab\\Models\\CodeCheckResult.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAFAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-12T06:53:58.08Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-12T06:53:58.08Z"
             },
             {
               "$type": "Document",
@@ -140,8 +135,7 @@
               "RelativeToolTip": "CDiazCodeLab\\Program.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-12T05:27:15.265Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-12T05:27:15.265Z"
             },
             {
               "$type": "Document",
@@ -153,8 +147,7 @@
               "RelativeToolTip": "CDiazCodeLab\\Controllers\\CodeCheckController.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAA3AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-12T05:27:20.142Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-12T05:27:20.142Z"
             },
             {
               "$type": "Document",
@@ -166,8 +159,7 @@
               "RelativeToolTip": "CDiazCodeLab\\DTOs\\CodeCheckFileDTO.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAqwAUAAAAbAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-12T06:48:38.026Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-12T06:48:38.026Z"
             },
             {
               "$type": "Document",
@@ -178,8 +170,7 @@
               "ToolTip": "C:\\Users\\User\\source\\repos\\SDO\\CDiazCodeLab\\CDiazCodeLab\\CDiazCodeLab.csproj",
               "RelativeToolTip": "CDiazCodeLab\\CDiazCodeLab.csproj",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
-              "WhenOpened": "2025-10-12T05:25:42.401Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-12T05:25:42.401Z"
             }
           ]
         }
