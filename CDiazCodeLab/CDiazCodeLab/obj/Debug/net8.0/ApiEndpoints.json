@@ -1,0 +1,18 @@
+[
+  {
+    "ContainingType": "CDiazCodeLab.Controllers.CodeCheckController",
+    "Method": "RunTests",
+    "RelativePath": "CDiazCodeLab/CodeCheck/RunTests",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "CDiazCodeLab.DTOs.CodeCheckFileDTO",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  }
+]
