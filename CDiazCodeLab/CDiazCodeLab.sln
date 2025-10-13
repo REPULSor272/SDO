@@ -5,6 +5,8 @@ VisualStudioVersion = 17.14.36518.9 d17.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CDiazCodeLab", "CDiazCodeLab\CDiazCodeLab.csproj", "{DB770FA8-1AB0-4155-AFDC-B82E507DDB6A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp1", "ConsoleApp1\ConsoleApp1.csproj", "{70EE5BF4-EC9A-4F5F-9E54-2F4A1F8A7EF0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{DB770FA8-1AB0-4155-AFDC-B82E507DDB6A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DB770FA8-1AB0-4155-AFDC-B82E507DDB6A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DB770FA8-1AB0-4155-AFDC-B82E507DDB6A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{70EE5BF4-EC9A-4F5F-9E54-2F4A1F8A7EF0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{70EE5BF4-EC9A-4F5F-9E54-2F4A1F8A7EF0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{70EE5BF4-EC9A-4F5F-9E54-2F4A1F8A7EF0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{70EE5BF4-EC9A-4F5F-9E54-2F4A1F8A7EF0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
