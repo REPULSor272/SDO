@@ -7,7 +7,7 @@ from app.core.jwt_handler import decode_access_token
 async def auth_middleware(request: Request, call_next):
 
     # Ендпоинты, по которым не надо проверять токен
-    if request.url.path in ["/docs", "/openapi.json", "/login", "/register"]:
+    if request.url.path in ["/docs", "/openapi.json", "/login", "/register", "/api/groups"]:
         return await call_next(request)
     
     auth_header = request.headers.get("Authorization")

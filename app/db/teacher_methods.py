@@ -110,16 +110,21 @@ def create_laboratory(task: TaskWithTestCasesSchema):
                 status='unpublished'
             )
             session.add(lab)
-            session.commit()
+            session.flush()
 
             # Добавляем тест-кейсы
             for test_case in task.test_cases:
-                test = TestCase(
-                    inp=test_case.inp,
-                    out=test_case.out,
-                    Task_id=lab.id
-                )
-                session.add(test)
+                # Проверка, что поля имеют хоть какое-то значение
+                if len(test_case.inp) and len(test_case.out):
+                    test = TestCase(
+                        inp=test_case.inp,
+                        out=test_case.out,
+                        Task_id=lab.id
+                    )
+                    session.add(test) 
+                else:
+                    raise Exception("Testscases input and output fields must be filled")
+        
             session.commit()
             return lab.id
         except Exception as e:
