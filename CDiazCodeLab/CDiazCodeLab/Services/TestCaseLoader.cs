@@ -21,10 +21,10 @@ namespace CDiazCodeLab.Services
         /// </returns>
         public static IEnumerable<TestCase> LoadFromString(string text)
         {
-            var lines = text.Split(" next ", StringSplitOptions.RemoveEmptyEntries);
+            var lines = text.Split("\n", StringSplitOptions.RemoveEmptyEntries);
             foreach (var line in lines)
             {
-                var parts = line.Trim().Split(" ans ", StringSplitOptions.RemoveEmptyEntries);
+                var parts = line.Trim().Split("|", StringSplitOptions.RemoveEmptyEntries);
                 if (parts.Length < 2) continue;
 
                 yield return new TestCase

@@ -1,4 +1,5 @@
 using CDiazCodeLab.DTOs;
+using CDiazCodeLab.Models;
 using CDiazCodeLab.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -19,45 +20,35 @@ namespace CDiazCodeLab.Controllers
         }
 
         // Старый вариант, если код передаётся в теле запроса (например, JSON)
-        [HttpPost]
-        public async Task<IActionResult> RunTests([FromBody] CodeCheckFileDTO request)
-        {
-            var result = await _codeCheck.RunTestsFromStringAsync(request.Code, request.Tests);
+        //[HttpPost]
+        // public async Task<IActionResult> RunTests([FromBody] CodeCheckFileDTO request)
+        // {
+        //     var result = await _codeCheck.RunTestsFromStringAsync(request.Code, request.Tests);
 
-            if (result == null)
-                return BadRequest("No result or incorrect test execution.");
+        //     if (result == null)
+        //         return BadRequest("No result or incorrect test execution.");
 
-            return Ok(result);
-        }
+        //     return Ok(result);
+        // }
 
         // Новый вариант — приём файла через Swagger
         [HttpPost]
-        public async Task<IActionResult> RunTestsFromFile(IFormFile file, [FromQuery] string tests)
+        public async Task<IActionResult> RunTestsFromFile([FromForm] CodeCheckFileDTO testCase)
         {
-            Console.Write(tests);
-            if (file == null || file.Length == 0)
+            Console.Write(testCase);
+            if (testCase.File == null || testCase.File.Length == 0)
                 return BadRequest("No file uploaded.");
 
             // Сохраняем временно файл (если нужно)
-            var tempPath = Path.Combine(Path.GetTempPath(), file.FileName);
+            var tempPath = Path.Combine(Path.GetTempPath(), testCase.File.FileName);
             using (var stream = new FileStream(tempPath, FileMode.Create))
             {
-                await file.CopyToAsync(stream);
+                await testCase.File.CopyToAsync(stream);
             }
 
-            // Исправляем формат тестов
-            if (!string.IsNullOrEmpty(tests))
-            {
-                // Если тесты переданы с экранированными переносами строк (например, "\n"),
-                // заменим их на реальные переводы строк, чтобы Split('\n') сработал корректно
-                tests = tests
-                    .Replace("\\r\\n", "\n")
-                    .Replace("\\n", "\n")
-                    .Replace("\\r", "\n"); 
-            }
 
             // Передаём в сервис для проверки
-            var result = await _codeCheck.RunTestsFromStringAsync(tempPath, tests);
+            var result = await _codeCheck.RunTestsFromStringAsync(tempPath, testCase.Test);
 
             // Можно удалить временный файл
             System.IO.File.Delete(tempPath);

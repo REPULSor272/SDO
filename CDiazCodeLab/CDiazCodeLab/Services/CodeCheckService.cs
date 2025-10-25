@@ -15,37 +15,38 @@ namespace CDiazCodeLab.Services
         /// <summary>
         /// Выполняет все тесты из переданной строки для данного кода.
         /// </summary>
-        public async Task<CodeCheckResult?> RunTestsFromStringAsync(string path, string testCasesString)
+        public async Task<CodeCheckResult?> RunTestsFromStringAsync(string path, TestCase testCase)
         {
 
             // Читаем код как текст
             string code = await File.ReadAllTextAsync(path);
             var file = GetFileInfo(path, code);
 
-            var testCases = TestCaseLoader.LoadFromString(testCasesString).ToList();
+            //var testCases = TestCaseLoader.LoadFromString(testCasesString).ToList();
 
-            if (!testCases.Any())
+            if (testCase == null)
                 return null;
 
             var results = new List<TestResult>();
             int passed = 0;
 
-            foreach (var test in testCases)
-            {
-                var result = await _runner.RunAsync(code, test);
-                results.Add(result);
-                if (result.Passed) passed++;
-            }
+            // foreach (var test in testCase)
+            // {
+            //     var result = await _runner.RunAsync(code, test);
+            //     results.Add(result);
+            //     if (result.Passed) passed++;
+            // }
 
+            var result = await _runner.RunAsync(code, testCase);
+            results.Add(result);
+            if (result.Passed) passed++;
+            
             return new CodeCheckResult
             {
                 FileName = file.FileName,
                 FileSizeBytes = file.Size,
                 LineCount = file.LineCount,
-                Total = testCases.Count,
-                Passed = passed,
-                Failed = testCases.Count - passed,
-                Results = results
+                Result = result
             };
         }
         static FileInfoModel GetFileInfo(string file, string code)
