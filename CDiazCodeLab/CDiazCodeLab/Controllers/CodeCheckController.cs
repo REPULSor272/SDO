@@ -19,17 +19,17 @@ namespace CDiazCodeLab.Controllers
             _codeCheck = codeCheck;
         }
 
-        // Старый вариант, если код передаётся в теле запроса (например, JSON)
-        //[HttpPost]
-        // public async Task<IActionResult> RunTests([FromBody] CodeCheckFileDTO request)
-        // {
-        //     var result = await _codeCheck.RunTestsFromStringAsync(request.Code, request.Tests);
+        // Если код передаётся в теле запроса (например, JSON)
+        [HttpPost]
+        public async Task<IActionResult> RunTestsFromString([FromForm] CodeCheckTextDTO request)
+        {
+            var result = await _codeCheck.RunTestsFromStringAsync(request.StringCode, request.Test, "text");
 
-        //     if (result == null)
-        //         return BadRequest("No result or incorrect test execution.");
+            if (result == null)
+                return BadRequest("No result or incorrect test execution.");
 
-        //     return Ok(result);
-        // }
+            return Ok(result);
+        }
 
         // Новый вариант — приём файла через Swagger
         [HttpPost]
@@ -48,7 +48,7 @@ namespace CDiazCodeLab.Controllers
 
 
             // Передаём в сервис для проверки
-            var result = await _codeCheck.RunTestsFromStringAsync(tempPath, testCase.Test);
+            var result = await _codeCheck.RunTestsFromStringAsync(tempPath, testCase.Test, "");
 
             // Можно удалить временный файл
             System.IO.File.Delete(tempPath);

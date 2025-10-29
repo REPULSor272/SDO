@@ -15,8 +15,20 @@ namespace CDiazCodeLab.Services
         /// <summary>
         /// Выполняет все тесты из переданной строки для данного кода.
         /// </summary>
-        public async Task<CodeCheckResult?> RunTestsFromStringAsync(string path, TestCase testCase)
+        public async Task<CodeCheckResult?> RunTestsFromStringAsync(string path, TestCase testCase, string func)
         {
+            if (func == "text")
+            {
+                path = path.Replace("{", "{\n")
+                            .Replace("}", "}\n")
+                            .Replace(";", ";\n");
+                Console.WriteLine(path);
+                var codeText = path;
+                // Создаём временный файл
+                path = Path.Combine(Path.GetTempPath(), "user_code_" + Guid.NewGuid() + ".cs");
+                await System.IO.File.WriteAllTextAsync(path, codeText);
+
+            }
 
             // Читаем код как текст
             string code = await File.ReadAllTextAsync(path);
@@ -57,8 +69,10 @@ namespace CDiazCodeLab.Services
                 FileInfo info = new FileInfo(file);
                 long fileSize = info.Length; // размер в байтах
 
+                
+
                 // Разделяем на строки
-                string[] allLines = code.Split(new[] { "\r\n", "\n", "\r" }, StringSplitOptions.None);
+                string[] allLines = code.Split(new[] { "\r\n", "\n", "\r",  }, StringSplitOptions.None);
 
                 // Подсчёт строк кода
                 int totalLines = allLines.Length;
