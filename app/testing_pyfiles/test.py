@@ -3,11 +3,18 @@ import io
 import threading
 import time
 import re
+import json
+import requests
+from enum import IntEnum
 from typing import List, Dict
-
 from app.db.task_methods import get_test_cases_by_task, update_solution_status
 from  app.schemas.tests import TestCase
 
+
+
+class SubjectTypes(IntEnum):
+    Python = 1
+    CSharp = 4
 
 class TeacherList:
     variables = dict()
@@ -112,40 +119,6 @@ class TeacherList:
                 self.binding_variables(line, self.formulas_teacher[i])
                 self.binding_formulas(line, self.formulas_teacher[i])
 
-async def check_formulas(teacher_formula_str, input_variables_str, code_str) -> tuple[str, bool]:
-    teacher_list = TeacherList()
-    for line in teacher_formula_str.splitlines():
-        line = line.rstrip()
-        teacher_list.add_teacher_formula(line)
-
-    for line in input_variables_str.splitlines():
-        line = line.rstrip()
-        teacher_list.input_variables.append(line)
-
-    input_count = 0
-    for line in code_str.splitlines():
-        line = line.rstrip()
-        if 'input()' in line:
-            char = line[:line.find('=')].strip()
-            teacher_list.binding_variables(char, teacher_list.input_variables[input_count])
-            input_count += 1
-        else:
-            teacher_list.add_student_formula(line)
-
-    res = ""
-    all_formulas_correct = True
-    for i in range(len(teacher_list.formulas_teacher)):
-        if i in teacher_list.formulas_student:
-            student_formula = "".join(teacher_list.formulas_student[i])
-            teacher_formula = "".join(teacher_list.formulas_teacher[i])
-            if student_formula != teacher_formula:
-                all_formulas_correct = False
-            res += student_formula + '\n'
-        else:
-            all_formulas_correct = False
-
-    return res, all_formulas_correct
-
 
 async def run_tests(task_id: int, code_str: str) -> dict:
     test_cases = get_test_cases_by_task(task_id)
@@ -212,20 +185,71 @@ async def run_tests(task_id: int, code_str: str) -> dict:
         "status": "Success"
     }
 
+async def run_c_sharp_tests(task_id: int, code_str: str, cfg: dict) -> dict: 
+    cs_service_cfg = cfg.get('cs_service')
+    
+    test_cases = get_test_cases_by_task(task_id)
+
+    headers = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+    }
+   
+
+    start_time = time.time()
+    
+    for index, test_case in enumerate(test_cases):
+        data = {
+            "StringCode": code_str,
+            "Test": {
+                "Input":test_case.inp,
+                "ExpectedOutput": test_case.out
+            }
+        }
+        response = requests.post(
+            f'http://{cs_service_cfg.get('host')}:{str(cs_service_cfg.get('port'))}/CDiazCodeLab/CodeCheck/RunTestsFromString',
+            data=json.dumps(data),
+            headers=headers 
+        )
+
+        response_data = response.json()
+        result_data = response_data.get('result')
+        
+        if not(result_data.get('passed')):
+            return {
+                "test_case_number": index + 1,
+                "input_data": result_data.get('testCase').get('input'),
+                "user_output": result_data.get('actualOutput'),
+                "expected_output": result_data.get('testCase').get('expeexpectedOutput'),
+                "status": "Failed"
+            }
+        index += 1
+    
+    end_time = time.time()
+    execution_time = round(end_time - start_time, 3)
+
+    return {
+        "total_execution_time": round(execution_time, 3),
+        "code_length": response_data.get('lineCount'),
+        "execution_status": "Success",
+        "status": "Success"
+    }
 
 # main testing function
-async def check_file(task_id: int, teacher_formula: str, input_variables: str, student_code: str,
-                     solution_id: int) -> TestCase:
-    # Проверка формул
-    formulas_output, formulas_correct = await check_formulas(teacher_formula, input_variables, student_code)
+async def check_file(task_id: int, subject_id: int, teacher_formula: str, input_variables: str, student_code: str,
+                     solution_id: int, cfg: dict) -> TestCase:
 
-    # Выполнение тестов
-    test_result = await run_tests(task_id, student_code)
+    match subject_id:
+        case SubjectTypes.Python.value:
+            # Выполнение тестов
+            test_result = await run_tests(task_id, student_code)
+        case SubjectTypes.CSharp.value:
+            # Выполнение тестов на C#
+            test_result = await run_c_sharp_tests(task_id, student_code, cfg)
 
     if test_result.get("status") == "Failed":
         update_solution_status(solution_id, "Failed")
         return TestCase(
-            formulas_output=formulas_output,
             code_output=f"Test case {test_result['test_case_number']} failed.\n"
                         f"Input: {test_result['input_data']}\n"
                         f"Expected output: {test_result['expected_output']}\n"
@@ -237,7 +261,6 @@ async def check_file(task_id: int, teacher_formula: str, input_variables: str, s
 
     update_solution_status(solution_id, "Success")
     return TestCase(
-        formulas_output=formulas_output,
         code_output="All tests passed successfully.",
         execution_time=test_result['total_execution_time'],
         code_length=test_result['code_length'],

@@ -21,7 +21,7 @@ namespace CDiazCodeLab.Controllers
 
         // Если код передаётся в теле запроса (например, JSON)
         [HttpPost]
-        public async Task<IActionResult> RunTestsFromString([FromForm] CodeCheckTextDTO request)
+        public async Task<IActionResult> RunTestsFromString([FromBody] CodeCheckTextDTO request)
         {
             var result = await _codeCheck.RunTestsFromStringAsync(request.StringCode, request.Test, "text");
 

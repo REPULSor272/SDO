@@ -4,6 +4,7 @@ from fastapi import APIRouter, Header, UploadFile, File, Depends
 from fastapi.responses import JSONResponse
 from http import HTTPStatus
 
+from app.config.config import init_config
 from app.core.check_auth import check_auth
 from app.core.files.files import check_type
 from app.db.subject_methods import get_subject_id_by_task
@@ -95,19 +96,28 @@ async def test_solution(task_id: int, authorization: str = Header(...)):
             status_code=HTTPStatus.NOT_FOUND,
             content={"error": "Solution not found."}
         )
+    
+    cfg = init_config()
+    if not(cfg.get("cs_service")):
+        return JSONResponse(
+            status_code=HTTPStatus.NOT_FOUND,
+            content={"error": "Config data for C# service was not found"}
+        )
 
-    # Выполнение тестирования
     res_check = await check_file(
         task_id,
+        subject_id,
         task_data['teacher_formula'],
         task_data['input_variables'],
         latest_solution.code,
-        latest_solution.id
+        latest_solution.id, 
+        cfg
     )
+
+    # Выполнение тестирования
 
     response = ResponseTest(
         status=res_check.execution_status,
-        formulas_output=res_check.formulas_output,
         code_output=res_check.code_output,
         execution_time=res_check.execution_time,
         code_length=res_check.code_length,
