@@ -7,7 +7,7 @@ from http import HTTPStatus
 from app.core.check_auth import check_auth
 from app.core.files.files import check_type
 from app.db.subject_methods import get_subject_id_by_task
-from app.db.task_methods import add_solution, get_latest_solution, get_task_data, get_user_solutions_by_task
+from app.db.task_methods import add_solution, get_latest_solution, get_task_data, get_user_solutions_by_task, update_solution_hidden
 from app.db.user_methods import is_user_enrolled_in_subject
 from app.schemas.files import ResponseUpload
 from app.schemas.others import Error
@@ -155,7 +155,7 @@ async def get_task_info(task_id: int, authorization: str = Header(...)):
     status = "Success" if passed_solutions else "Failed"
 
     # Формирование ответа
-    solutions_info = [SolutionInfo(code=sol.code, status=sol.status or "unknown").model_dump() for sol in
+    solutions_info = [SolutionInfo(id = sol.id, code=sol.code, status=sol.status or "unknown", is_hidden=sol.is_hidden).model_dump() for sol in
                       user_solutions]
     return JSONResponse(
         status_code=HTTPStatus.OK,
@@ -168,3 +168,17 @@ async def get_task_info(task_id: int, authorization: str = Header(...)):
             solutions=solutions_info,
         ).model_dump()
     )
+
+
+@router.post("/task/solution/{solution_id}/hide", summary="Скрытие конкретной решения")
+async def hide_solution(solution_id: int, authorization: str = Header(...)):
+    auth_data = check_auth(authorization)
+    if isinstance(auth_data, JSONResponse):
+        return auth_data
+    if update_solution_hidden(auth_data['user_id'], solution_id):
+        return {"message": "Solution hidden successfully"}
+    else:
+        return JSONResponse(
+            status_code=HTTPStatus.NOT_FOUND,
+            content={"Solution not found or access denied"}
+        )

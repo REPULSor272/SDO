@@ -1,8 +1,10 @@
 from pydantic import BaseModel
 
 class SolutionInfo(BaseModel):
+    id: int
     code: str = ""
     status: str = ""
+    is_hidden: bool
 
 class TaskInfo(BaseModel):
     id: int = 0

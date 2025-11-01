@@ -92,7 +92,7 @@ def get_user_solutions_by_task(user_id, task_id):
     with Session() as session:
         try:
             # Запрос решений пользователя для конкретной задачи
-            solutions = session.query(Solution).filter_by(User_id=user_id, Task_id=task_id).all()
+            solutions = session.query(Solution).filter_by(User_id=user_id, Task_id=task_id, is_hidden =False).all()
 
             # Если решения не найдены, возвращаем пустой список или выбрасываем ошибку
             if not solutions:
@@ -160,6 +160,22 @@ def update_solution_status(solution_id: int, status: str):
             print(f"Error updating solution status: {e}")
             raise
 
+
+def update_solution_hidden(user_id:int, solution_id: int):
+    """Скрывает solution пользователя. Возвращает True, если успешно."""
+    with Session() as session:
+        try:
+            solution = session.query(Solution).filter_by(User_id=user_id,
+                id=solution_id).first()
+            if not solution:
+                return False
+            solution.is_hidden = True
+            session.commit()
+            return True
+        except Exception as e:
+            session.rollback()
+            print(f"[update_solution_hidden] Error: {e}")
+            return False
 
 def get_solutions_by_user(user_id):
     """

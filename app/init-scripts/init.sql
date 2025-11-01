@@ -72,6 +72,7 @@ CREATE TABLE "Solution"
     id                  SERIAL PRIMARY KEY,
     code                TEXT    NOT NULL,
     mark                INTEGER,
+    is_hidden           BOOLEAN DEFAULT false,
     "lengthTestResult"  BOOLEAN,
     "formulaTestResult" BOOLEAN,
     "autoTestResult"    INTEGER,

@@ -97,6 +97,7 @@ class Solution(Base):
     id = Column(Integer, primary_key=True)
     code = Column(String, nullable=False)
     mark = Column(Integer, nullable=True)
+    is_hidden = Column(Boolean, nullable=False, default=False)
     lengthTestResult = Column(Boolean, nullable=True)
     formulaTestResult = Column(Boolean, nullable=True)
     autoTestResult = Column(Integer, nullable=True)
