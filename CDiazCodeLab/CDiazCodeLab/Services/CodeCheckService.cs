@@ -52,7 +52,8 @@ namespace CDiazCodeLab.Services
             var result = await _runner.RunAsync(code, testCase);
             results.Add(result);
             if (result.Passed) passed++;
-            
+
+            GC.Collect(); // Вызываю garbage collector для чистки памяти после каждой итерации.
             return new CodeCheckResult
             {
                 FileName = file.FileName,
@@ -61,6 +62,7 @@ namespace CDiazCodeLab.Services
                 Result = result
             };
         }
+
         static FileInfoModel GetFileInfo(string file, string code)
         {
             try
@@ -68,8 +70,6 @@ namespace CDiazCodeLab.Services
                 // Получаем информацию о файле
                 FileInfo info = new FileInfo(file);
                 long fileSize = info.Length; // размер в байтах
-
-                
 
                 // Разделяем на строки
                 string[] allLines = code.Split(new[] { "\r\n", "\n", "\r",  }, StringSplitOptions.None);
@@ -91,7 +91,10 @@ namespace CDiazCodeLab.Services
                 return File;
             }
         }
-        // Проверка строки на {, [, (, комментарии и пустые строки  
+
+        /// <summary>
+        /// Проверка строки на {, [, (, комментарии и пустые строки  
+        /// </summary>
         static bool IsCodeLine(string line)
         {
             string trimmed = line.Trim();

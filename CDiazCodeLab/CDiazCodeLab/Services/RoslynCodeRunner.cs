@@ -1,6 +1,7 @@
 ﻿using CDiazCodeLab.Models;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using System.Diagnostics;
 using System.Reflection;
 
 namespace CDiazCodeLab.Services
@@ -34,9 +35,30 @@ namespace CDiazCodeLab.Services
             try
             {
                 var assembly = CompileCode(code);
+                var sw = Stopwatch.StartNew();
+                long memBefore = GC.GetTotalMemory(false);
+
                 await ExecuteEntryPointAsync(assembly, cts.Token);
 
+                sw.Stop();
+                long memAfter = GC.GetTotalMemory(false);
+
                 var actualOutput = NormalizeOutput(outputWriter.ToString());
+                result.ExecutionTimeMs = sw.ElapsedMilliseconds;
+                result.MemoryUsedBytes = memAfter - memBefore;
+
+                if (result.ExecutionTimeMs > test.MaxExecutionTimeMs)
+                {
+                    result.ErrorMessage = $"Превышено время: {result.ExecutionTimeMs} ms";
+                    result.Passed = false;
+                }
+
+                if (result.MemoryUsedBytes > test.MaxMemoryBytes)
+                {
+                    result.ErrorMessage = $"Превышена память: {result.MemoryUsedBytes} bytes";
+                    result.Passed = false;
+                }
+
                 result.ActualOutput = actualOutput;
                 result.Passed = CompareOutputs(actualOutput, test.ExpectedOutput);
             }

@@ -6,6 +6,8 @@
         public string ActualOutput { get; set; } = string.Empty;
         public bool Passed { get; set; }
         public string ErrorMessage { get; set; } = string.Empty;
+        public long ExecutionTimeMs { get; set; }
+        public long MemoryUsedBytes { get; set; }
     }
 
 }

@@ -21,7 +21,7 @@ namespace CDiazCodeLab.Controllers
 
         // Если код передаётся в теле запроса (например, JSON)
         [HttpPost]
-        public async Task<IActionResult> RunTestsFromString([FromBody] CodeCheckTextDTO request)
+        public async Task<IActionResult> RunTestsFromStringAsync([FromBody] CodeCheckTextDTO request)
         {
             var result = await _codeCheck.RunTestsFromStringAsync(request.StringCode, request.Test, "text");
 
@@ -33,7 +33,7 @@ namespace CDiazCodeLab.Controllers
 
         // Новый вариант — приём файла через Swagger
         [HttpPost]
-        public async Task<IActionResult> RunTestsFromFile([FromForm] CodeCheckFileDTO testCase)
+        public async Task<IActionResult> RunTestsFromFileAsync([FromForm] CodeCheckFileDTO testCase)
         {
             Console.Write(testCase);
             if (testCase.File == null || testCase.File.Length == 0)
