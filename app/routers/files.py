@@ -7,7 +7,7 @@ from http import HTTPStatus
 from app.core.check_auth import check_auth
 from app.core.files.files import check_type
 from app.db.subject_methods import get_subject_id_by_task
-from app.db.task_methods import add_solution, get_latest_solution, get_task_data, get_user_solutions_by_task, update_solution_hidden
+from app.db.task_methods import add_solution, delete_solution_bd, get_latest_solution, get_task_data, get_user_solutions_by_task, update_solution_hidden
 from app.db.user_methods import is_user_enrolled_in_subject
 from app.schemas.files import ResponseUpload
 from app.schemas.others import Error
@@ -170,7 +170,7 @@ async def get_task_info(task_id: int, authorization: str = Header(...)):
     )
 
 
-@router.post("/task/solution/{solution_id}/hide", summary="Скрытие конкретной решения")
+@router.post("/task/solution/{solution_id}/hide", summary="Скрытие конкретного решения")
 async def hide_solution(solution_id: int, authorization: str = Header(...)):
     auth_data = check_auth(authorization)
     if isinstance(auth_data, JSONResponse):
@@ -180,5 +180,25 @@ async def hide_solution(solution_id: int, authorization: str = Header(...)):
     else:
         return JSONResponse(
             status_code=HTTPStatus.NOT_FOUND,
-            content={"Solution not found or access denied"}
+            content={"detail": "Solution not found or access denied"}
+        )
+
+
+@router.delete("/task/solution/{solution_id}", summary="Удаление конкретного решения")
+async def delete_solution(solution_id: int, authorization: str = Header(...)):
+    auth_data = check_auth(authorization)
+    if isinstance(auth_data, JSONResponse):
+        return auth_data
+    user_role = auth_data.get('roleType')
+    if user_role != "teacher":
+        return JSONResponse(
+            status_code=HTTPStatus.FORBIDDEN,
+            content={"detail": "Only teachers can delete solutions"}
+        )
+    if delete_solution_bd(solution_id):
+        return {"message": "Solution deleted successfully"}
+    else:
+        return JSONResponse(
+            status_code=HTTPStatus.NOT_FOUND,
+            content={"detail": "Solution not found or access denied"}
         )

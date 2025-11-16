@@ -161,12 +161,11 @@ def update_solution_status(solution_id: int, status: str):
             raise
 
 
-def update_solution_hidden(user_id:int, solution_id: int):
+def update_solution_hidden(user_id: int, solution_id: int):
     """Скрывает solution пользователя. Возвращает True, если успешно."""
     with Session() as session:
         try:
-            solution = session.query(Solution).filter_by(User_id=user_id,
-                id=solution_id).first()
+            solution = session.query(Solution).filter_by(User_id=user_id, id=solution_id).first()
             if not solution:
                 return False
             solution.is_hidden = True
@@ -176,6 +175,23 @@ def update_solution_hidden(user_id:int, solution_id: int):
             session.rollback()
             print(f"[update_solution_hidden] Error: {e}")
             return False
+
+
+def delete_solution_bd(solution_id: int):
+    """Удаляет solution пользователя. Возвращает True, если успешно."""
+    with Session() as session:
+        try:
+            solution = session.query(Solution).filter_by(id=solution_id).first()
+            if not solution:
+                return False
+            session.delete(solution)
+            session.commit()
+            return True
+        except Exception as e:
+            session.rollback()
+            print(f"[delete_solution] Error: {e}")
+            return False
+
 
 def get_solutions_by_user(user_id):
     """
