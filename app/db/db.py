@@ -66,7 +66,7 @@ class User(Base):
     password = Column(String(255), nullable=False)
     roleType = Column(RoleTypeEnum, nullable=False, default='student')
     studyGroup = Column(Integer, ForeignKey('Group.id', ondelete='CASCADE'))
-    form_education = Column(String(255), nullable=True, default='Не указано')
+    form_education = Column(String(255), nullable=True)
     first_name = Column(String(64), nullable=True)
     last_name = Column(String(64), nullable=True)
     middle_name = Column(String(64), nullable=True)
@@ -108,8 +108,7 @@ class Solution(Base):
     Task_id = Column(Integer, ForeignKey('Task.id', ondelete='CASCADE'),
                      nullable=False)  # Решение разве не должно быть под конкретную таску?
     user = relationship('User', back_populates='solutions')
-    task = relationship('Task',
-                        back_populates='solution')  # Почему uselist=false если у task в теории может быть ряд решений
+    task = relationship('Task',back_populates='solution')  # Почему uselist=false если у task в теории может быть ряд решений?
 
 
 class Task(Base):
