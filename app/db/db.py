@@ -26,6 +26,7 @@ Base = declarative_base()
 Session = sessionmaker(bind=engine)
 
 RoleTypeEnum = ENUM('admin', 'teacher', 'student', name='role', create_type=True)
+TaskStatusTypeEnum = ENUM('published', 'unpublished')
 
 
 class TeacherHasGroups(Base):
@@ -63,12 +64,12 @@ class User(Base):
     id = Column(Integer, primary_key=True)
     username = Column(String(64), unique=True, nullable=False)
     password = Column(String(255), nullable=False)
-    roleType = Column(String(10), nullable=False, default='student')
+    roleType = Column(RoleTypeEnum, nullable=False, default='student')
     studyGroup = Column(Integer, ForeignKey('Group.id', ondelete='CASCADE'))
-    form_education = Column(String(255), nullable=False, default='Не указано')
-    first_name = Column(String(64), nullable=False, default='Не указано')
-    last_name = Column(String(64), nullable=False, default='Не указано')
-    middle_name = Column(String(64), default='Не указано')
+    form_education = Column(String(255), nullable=True, default='Не указано')
+    first_name = Column(String(64), nullable=True)
+    last_name = Column(String(64), nullable=True)
+    middle_name = Column(String(64), nullable=True)
     group_rel = relationship('Group', back_populates='users')
     teacher_groups = relationship("TeacherHasGroups", back_populates="user")
     solutions = relationship('Solution', back_populates='user', cascade="all, delete-orphan")
@@ -92,6 +93,7 @@ class Subject(Base):
     groups_link = relationship("GroupSubject", back_populates="subject", overlaps="groups,subjects")
     tasks = relationship('Task', back_populates='subject')
 
+
 class Solution(Base):
     __tablename__ = 'Solution'
     id = Column(Integer, primary_key=True)
@@ -103,9 +105,11 @@ class Solution(Base):
     autoTestResult = Column(Integer, nullable=True)
     status = Column(String, nullable=True)
     User_id = Column(Integer, ForeignKey('User.id', ondelete='CASCADE'), nullable=False)
-    Task_id = Column(Integer, ForeignKey('Task.id', ondelete='CASCADE'), nullable=True)
+    Task_id = Column(Integer, ForeignKey('Task.id', ondelete='CASCADE'),
+                     nullable=False)  # Решение разве не должно быть под конкретную таску?
     user = relationship('User', back_populates='solutions')
-    task = relationship('Task', back_populates='solution', uselist=False)
+    task = relationship('Task',
+                        back_populates='solution')  # Почему uselist=false если у task в теории может быть ряд решений
 
 
 class Task(Base):
@@ -115,11 +119,11 @@ class Task(Base):
     description = Column(String(2048), nullable=True)
     teacher_formula = Column(String, nullable=True)
     input_variables = Column(String, nullable=True)
-    status = Column(String, nullable=False)
+    status = Column(TaskStatusTypeEnum, nullable=False)  # Лучше всего использовать Enum
     Subject_id = Column(Integer, ForeignKey('Subject.id', ondelete='CASCADE'), nullable=False)
     subject = relationship('Subject', back_populates='tasks')
-    solution = relationship('Solution', back_populates='task', uselist=False)
-    testCases = relationship('TestCase', back_populates='task')
+    solutions = relationship('Solution', back_populates='task', cascade="all, delete-orphan")  # аналогично верхнему
+    testCases = relationship('TestCase', back_populates='task', cascade="all, delete-orphan")
 
 
 class TestCase(Base):
@@ -127,8 +131,9 @@ class TestCase(Base):
     id = Column(Integer, primary_key=True)
     inp = Column(String(512), nullable=False)
     out = Column(String(512), nullable=False)
-    Task_id = Column(Integer, ForeignKey('Task.id', ondelete='CASCADE'), nullable=True)
+    Task_id = Column(Integer, ForeignKey('Task.id', ondelete='CASCADE'), nullable=False)
     task = relationship('Task', back_populates='testCases')
+
 
 def delete_tables():
     Base.metadata.drop_all(engine)
