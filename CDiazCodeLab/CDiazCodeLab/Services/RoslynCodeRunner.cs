@@ -1,6 +1,7 @@
 ﻿using CDiazCodeLab.Models;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Diagnostics;
 using System.Reflection;
 
@@ -24,7 +25,7 @@ namespace CDiazCodeLab.Services
             var result = new TestResult { TestCase = test };
             var outputWriter = new StringWriter();
             var inputReader = new StringReader(test.Input + Environment.NewLine);
-
+            int countVariables;
             var prevOut = Console.Out;
             var prevIn = Console.In;
 
@@ -34,7 +35,7 @@ namespace CDiazCodeLab.Services
 
             try
             {
-                var assembly = CompileCode(code);
+                var assembly = CompileCode(code, out countVariables);
                 var sw = Stopwatch.StartNew();
                 long memBefore = GC.GetTotalMemory(false);
 
@@ -44,23 +45,43 @@ namespace CDiazCodeLab.Services
                 long memAfter = GC.GetTotalMemory(false);
 
                 var actualOutput = NormalizeOutput(outputWriter.ToString());
+
                 result.ExecutionTimeMs = sw.ElapsedMilliseconds;
                 result.MemoryUsedBytes = memAfter - memBefore;
-
-                if (result.ExecutionTimeMs > test.MaxExecutionTimeMs)
+                result.CountVariables = countVariables;
+                if (test.CountVariables != null)
                 {
-                    result.ErrorMessage = $"Превышено время: {result.ExecutionTimeMs} ms";
-                    result.Passed = false;
+                    if (result.CountVariables > test.CountVariables)
+                    {
+                        result.ErrorMessage = $"Превышено число переменных: {result.CountVariables}";
+                        result.Passed = false;
+                    }
                 }
 
-                if (result.MemoryUsedBytes > test.MaxMemoryBytes)
+                if (test.MaxExecutionTimeMs != null)
                 {
-                    result.ErrorMessage = $"Превышена память: {result.MemoryUsedBytes} bytes";
-                    result.Passed = false;
+                    if (result.ExecutionTimeMs > test.MaxExecutionTimeMs)
+                    {
+                        result.ErrorMessage = $"Превышено время: {result.ExecutionTimeMs} ms";
+                        result.Passed = false;
+                    }
                 }
 
+                if (test.MaxMemoryBytes != null)
+                {
+                    if (result.MemoryUsedBytes > test.MaxMemoryBytes)
+                    {
+                        result.ErrorMessage = $"Превышена память: {result.MemoryUsedBytes} bytes";
+                        result.Passed = false;
+                    }
+                }
+
+                if (result.Passed)
+                {
+                    result.Passed = CompareOutputs(actualOutput, test.ExpectedOutput);
+                }
                 result.ActualOutput = actualOutput;
-                result.Passed = CompareOutputs(actualOutput, test.ExpectedOutput);
+
             }
             catch (OperationCanceledException)
             {
@@ -82,10 +103,13 @@ namespace CDiazCodeLab.Services
         /// <summary>
         /// Компилирует исходный код в сборку.
         /// </summary>
-        private static Assembly CompileCode(string code)
+        private static Assembly CompileCode(string code, out int varCount)
         {
             var syntaxTree = CSharpSyntaxTree.ParseText(code);
             var references = GetDefaultReferences().ToArray();
+
+            var root = syntaxTree.GetRoot();
+            varCount = root.DescendantNodes().OfType<VariableDeclaratorSyntax>().Count();
 
             var compilation = CSharpCompilation.Create(
                 assemblyName: "UserCode",
