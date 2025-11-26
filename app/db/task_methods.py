@@ -1,4 +1,4 @@
-from app.db.db import Session, Solution, Subject, TestCase
+from app.db.db import Session, Solution, Subject, TestCase, SolutionAttempts
 from app.db.subject_methods import get_subject_id_by_task
 from app.schemas.task import Task as TaskSchema, TaskInfo, SolutionInfo
 from app.db.db import Task, User
@@ -18,8 +18,6 @@ def get_task_data(task_id: int) -> dict | None:
                 "id": task.id,
                 "name": task.name,
                 "description": task.description,
-                "teacher_formula": task.teacher_formula,
-                "input_variables": task.input_variables
             }
         return None
 
@@ -39,7 +37,8 @@ def get_tasks_by_subject(subject_id: int) -> str | list[Task]:
             if not subject:
                 return "Subject not found"
 
-            tasks = session.query(Task).filter_by(Subject_id=subject.id, status='published').order_by(Task.id).all()
+            tasks = session.query(Task).filter_by(
+                Subject_id=subject.id, status='published').order_by(Task.id).all()
 
             if not tasks:
                 return "No tasks found for subject"
@@ -66,7 +65,8 @@ def get_test_cases_by_task(task_id):
                 raise ValueError(f"Task with ID {task_id} not found.")
 
             # Извлекаем все тестовые случаи, связанные с данной задачей
-            test_cases = session.query(TestCase).filter_by(Task_id=task_id).all()
+            test_cases = session.query(
+                TestCase).filter_by(Task_id=task_id).all()
 
             # Если тестовые случаи не найдены, возвращаем пустой список
             if not test_cases:
@@ -76,7 +76,8 @@ def get_test_cases_by_task(task_id):
             return test_cases
 
         except Exception as e:
-            print(f"Error retrieving test cases for task with ID {task_id}: {e}")
+            print(
+                f"Error retrieving test cases for task with ID {task_id}: {e}")
             raise
 
 
@@ -92,17 +93,21 @@ def get_user_solutions_by_task(user_id, task_id):
     with Session() as session:
         try:
             # Запрос решений пользователя для конкретной задачи
-            solutions = session.query(Solution).filter_by(User_id=user_id, Task_id=task_id, is_hidden =False).all()
+            solutions = session.query(Solution).filter_by(
+                User_id=user_id, Task_id=task_id, is_hidden=False).all()
 
             # Если решения не найдены, возвращаем пустой список или выбрасываем ошибку
             if not solutions:
-                print(f"No solutions found for user {user_id} and task {task_id}.")
+                print(
+                    f"No solutions found for user {user_id} and task {task_id}.")
                 return []
 
             return solutions
         except Exception as e:
-            print(f"Error retrieving solutions for user {user_id} and task {task_id}: {e}")
+            print(
+                f"Error retrieving solutions for user {user_id} and task {task_id}: {e}")
             raise
+
 
 def add_solution(code, user_id, task_id) -> str | bool:
     """
@@ -127,9 +132,26 @@ def add_solution(code, user_id, task_id) -> str | bool:
         if not user:
             return "User not found."
 
-        group_subject_ids = [gs.subject_id for gs in user.group_rel.subjects_link]
+        group_subject_ids = [
+            gs.subject_id for gs in user.group_rel.subjects_link]
         if subject_id not in group_subject_ids:
             return "User is not enrolled in the subject."
+
+    # добавление или увеличение общего счетчика попыток
+    with Session() as session:
+        try:
+            solution_attempts = session.query(SolutionAttempts).filter(
+                SolutionAttempts.User_id == user_id, SolutionAttempts.Task_id == task_id).first()
+            if not solution_attempts:
+                solution_attempts = SolutionAttempts(
+                    User_id=user_id,  # Привязка к пользователю
+                    Task_id=task_id  # Привязка к задаче
+                )
+            solution_attempts.attempt_count += 1
+            session.commit()
+        except Exception as e:
+            session.rollback()
+            return f"Error adding solution: {e}"
 
     # Создание сессии
     with Session() as session:
@@ -151,7 +173,8 @@ def add_solution(code, user_id, task_id) -> str | bool:
 def update_solution_status(solution_id: int, status: str):
     with Session() as session:
         try:
-            solution = session.query(Solution).filter_by(id=solution_id).first()
+            solution = session.query(Solution).filter_by(
+                id=solution_id).first()
             if solution:
                 solution.status = status
                 session.commit()
@@ -165,7 +188,8 @@ def update_solution_hidden(user_id: int, solution_id: int):
     """Скрывает solution пользователя. Возвращает True, если успешно."""
     with Session() as session:
         try:
-            solution = session.query(Solution).filter_by(User_id=user_id, id=solution_id).first()
+            solution = session.query(Solution).filter_by(
+                User_id=user_id, id=solution_id).first()
             if not solution:
                 return False
             solution.is_hidden = True
@@ -177,6 +201,7 @@ def update_solution_hidden(user_id: int, solution_id: int):
             return False
 
 
+
 def delete_solution_bd(solution_id: int):
     """Удаляет solution пользователя. Возвращает True, если успешно."""
     with Session() as session:
@@ -184,6 +209,16 @@ def delete_solution_bd(solution_id: int):
             solution = session.query(Solution).filter_by(id=solution_id).first()
             if not solution:
                 return False
+
+            #уменьшение общего числа попыток
+            solution_attempts = session.query(SolutionAttempts).filter(
+                SolutionAttempts.User_id == solution.User_id,
+                SolutionAttempts.Task_id == solution.Task_id).first()
+            if solution_attempts:
+                solution_attempts.attempt_count -= 1
+                if solution_attempts.attempt_count < 0:
+                    solution_attempts.attempt_count = 0
+
             session.delete(solution)
             session.commit()
             return True
@@ -204,7 +239,8 @@ def get_solutions_by_user(user_id):
     with Session() as session:
         try:
             # Получение всех решений пользователя
-            solutions = session.query(Solution).filter_by(User_id=user_id).all()
+            solutions = session.query(
+                Solution).filter_by(User_id=user_id).all()
 
             # Если решений не найдено, можно вернуть пустой список или выбросить исключение
             if not solutions:
@@ -213,7 +249,8 @@ def get_solutions_by_user(user_id):
 
             return solutions
         except Exception as e:
-            print(f"Error retrieving solutions for user with ID {user_id}: {e}")
+            print(
+                f"Error retrieving solutions for user with ID {user_id}: {e}")
             raise
 
 
@@ -244,9 +281,11 @@ def evaluate_solution(solution_id, new_mark):
     with Session() as session:
         try:
             # Находим решение пользователя
-            solution = session.query(Solution).filter_by(id=solution_id).first()
+            solution = session.query(Solution).filter_by(
+                id=solution_id).first()
             if not solution:
-                raise ValueError(f"No solution found for solution {solution_id}.")
+                raise ValueError(
+                    f"No solution found for solution {solution_id}.")
 
             # Обновляем поле mark у найденного решения
             solution.mark = new_mark
@@ -257,6 +296,7 @@ def evaluate_solution(solution_id, new_mark):
             session.rollback()  # Откатываем транзакцию в случае ошибки
             print(f"Error evaluating solution for {solution_id}: {e}")
             raise
+
 
 def is_task_completed(session: Session, user_id: int, task_id: int) -> bool:
     """

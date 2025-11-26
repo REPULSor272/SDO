@@ -61,8 +61,6 @@ CREATE TABLE "Task"
     id              SERIAL PRIMARY KEY,
     name            VARCHAR(128) NOT NULL,
     description     VARCHAR(2048),
-    teacher_formula VARCHAR,
-    input_variables VARCHAR,
     status          VARCHAR CHECK ( status IN ('published', 'unpublished') ),
     "Subject_id"    INTEGER      NOT NULL REFERENCES "Subject" (id) ON DELETE CASCADE
 );
@@ -74,9 +72,15 @@ CREATE TABLE "Solution"
     mark                INTEGER,
     is_hidden           BOOLEAN DEFAULT false,
     "lengthTestResult"  BOOLEAN,
-    "formulaTestResult" BOOLEAN,
     "autoTestResult"    INTEGER,
     status              VARCHAR,
+    "User_id"           INTEGER NOT NULL REFERENCES "User" (id) ON DELETE CASCADE,
+    "Task_id"           INTEGER REFERENCES "Task" (id) ON DELETE CASCADE
+);
+
+CREATE TABLE "SolutionAttempts" (
+    id                  SERIAL PRIMARY KEY,
+    attempt_count       INTEGER DEFAULT 0,
     "User_id"           INTEGER NOT NULL REFERENCES "User" (id) ON DELETE CASCADE,
     "Task_id"           INTEGER REFERENCES "Task" (id) ON DELETE CASCADE
 );
@@ -139,25 +143,24 @@ VALUES (1, 1),
        (4, 4);
 
 -- Добавление заданий
-INSERT INTO "Task" (name, "Subject_id", description, teacher_formula, input_variables, status)
+INSERT INTO "Task" (name, "Subject_id", description, status)
 VALUES ('Задание 1. Python - числовые типы', 1,
-        'Задача на числовые типы\nПример входных данных: 1 2 3\nПример выходных данных: 0 2',
-        'b1=a1+a2-a3\nb2=b1+a2', 'a1\na2\na3', 'published'),
-       ('Задание 1. С++ - числовые типы', 2, 'Задача на числовые типы', 'c - d', 'a3, a4', 'published'),
-       ('Задание 2. Python - строки', 1, 'Задача на строки', 'a + b', 'a1, a2', 'published'),
-       ('Задание 2. С++ - строки', 2, 'Задача на строки', 'c - d', 'a3, a4', 'published'),
-       ('Задание 3. Python - списки', 1, 'Задача на списки', 'a + b', 'a1, a2', 'unpublished'),
-       ('Задание 3. С++ - списки', 2, 'Задача на списки', 'c - d', 'a3, a4', 'published'),
-       ('Задание 1. Java - числовые типы', 3, 'Задача на числовые типы', 'a + b', 'a1, a2', 'published'),
-       ('Задание 2. Java - строки', 3, 'Задача на строки', 'a + b', 'a1, a2', 'unpublished'),
-       ('Задание 3. Java - списки', 3, 'Задача на списки', 'a + b', 'a1, a2', 'unpublished'),
-       ('Задание 4. Java - массивы', 3, 'Задача на массивы', 'a + b', 'a1, a2', 'unpublished'),
-       ('Задание 5. Java - классы', 3, 'Задача на классы', 'a + b', 'a1, a2', 'published'),
-       ('Задание 1. C# - числовые типы', 4, 'Задача на числовые типы', 'a + b', 'a1, a2', 'published'),
-       ('Задание 2. C# - строки', 4, 'Задача на строки', 'a + b', 'a1, a2', 'unpublished'),
-       ('Задание 3. C# - списки', 4, 'Задача на списки', 'a + b', 'a1, a2', 'published'),
-       ('Задание 4. C# - массивы', 4, 'Задача на массивы', 'a + b', 'a1, a2', 'unpublished'),
-       ('Задание 5. C# - классы', 4, 'Задача на классы', 'a + b', 'a1, a2', 'published');
+        'Задача на числовые типы\nПример входных данных: 1 2 3\nПример выходных данных: 0 2', 'published'),
+       ('Задание 1. С++ - числовые типы', 2, 'Задача на числовые типы', 'published'),
+       ('Задание 2. Python - строки', 1, 'Задача на строки', 'published'),
+       ('Задание 2. С++ - строки', 2, 'Задача на строки', 'published'),
+       ('Задание 3. Python - списки', 1, 'Задача на списки', 'unpublished'),
+       ('Задание 3. С++ - списки', 2, 'Задача на списки', 'published'),
+       ('Задание 1. Java - числовые типы', 3, 'Задача на числовые типы', 'published'),
+       ('Задание 2. Java - строки', 3, 'Задача на строки', 'unpublished'),
+       ('Задание 3. Java - списки', 3, 'Задача на списки', 'unpublished'),
+       ('Задание 4. Java - массивы', 3, 'Задача на массивы', 'unpublished'),
+       ('Задание 5. Java - классы', 3, 'Задача на классы', 'published'),
+       ('Задание 1. C# - числовые типы', 4, 'Задача на числовые типы', 'published'),
+       ('Задание 2. C# - строки', 4, 'Задача на строки', 'unpublished'),
+       ('Задание 3. C# - списки', 4, 'Задача на списки', 'published'),
+       ('Задание 4. C# - массивы', 4, 'Задача на массивы', 'unpublished'),
+       ('Задание 5. C# - классы', 4, 'Задача на классы', 'published');
 
 -- Добавление тестовых случаев
 INSERT INTO "TestCase" (inp, out, "Task_id")
@@ -186,3 +189,6 @@ VALUES ('1 2 3', '0 2', 1),
 INSERT INTO "Solution" (code, "User_id", "Task_id")
 VALUES ('print(''Hello, World!'')', 1, 1),
        ('print(''Hello, World!'')', 1, 3);
+INSERT INTO "SolutionAttempts" (attempt_count, "User_id", "Task_id")
+VALUES (1, 1, 1),
+       (1, 1, 3);

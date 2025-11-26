@@ -48,8 +48,6 @@ class TaskBaseSchema(BaseModel):
     id: int
     name: str
     description: Optional[str] = None
-    teacher_formula: Optional[str] = None
-    input_variables: Optional[str] = None
     subject_id: int
 
     class Config:
@@ -83,7 +81,5 @@ class DetailLab(BaseModel):
     id: int
     name: str
     description: Optional[str] = None
-    teacher_formula: Optional[str] = None
-    input_variables: Optional[str] = None
     subject_id: int
     test_cases: List[TestCaseSchema]

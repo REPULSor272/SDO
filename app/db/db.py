@@ -72,6 +72,7 @@ class User(Base):
     group_rel = relationship('Group', back_populates='users')
     teacher_groups = relationship("TeacherHasGroups", back_populates="user")
     solutions = relationship('Solution', back_populates='user', cascade="all, delete-orphan")
+    attempts = relationship('SolutionAttempts', back_populates='user')
 
 
 class GroupSubject(Base):
@@ -99,7 +100,7 @@ class Solution(Base):
     mark = Column(Integer, nullable=True)
     is_hidden = Column(Boolean, nullable=False, default=False)
     lengthTestResult = Column(Boolean, nullable=True)
-    formulaTestResult = Column(Boolean, nullable=True)
+    formulaTestResult = Column(Boolean, nullable=True)#проверка формул
     autoTestResult = Column(Integer, nullable=True)
     status = Column(String, nullable=True)
     User_id = Column(Integer, ForeignKey('User.id', ondelete='CASCADE'), nullable=False)
@@ -108,18 +109,26 @@ class Solution(Base):
     task = relationship('Task', back_populates='solution', uselist=False)
 
 
+class SolutionAttempts(Base):
+    __tablename__ = 'SolutionAttempts'
+    id = Column(Integer, primary_key=True)
+    attempt_count = Column(Integer, default=0)
+    User_id = Column(Integer, ForeignKey('User.id', ondelete='CASCADE'), nullable=False)
+    Task_id = Column(Integer, ForeignKey('Task.id', ondelete='CASCADE'))
+    user = relationship('User', back_populates='attempts')
+    task = relationship('Task', back_populates='attempts')
+
 class Task(Base):
     __tablename__ = "Task"
     id = Column(Integer, primary_key=True)
     name = Column(String(128), nullable=False)
     description = Column(String(2048), nullable=True)
-    teacher_formula = Column(String, nullable=True)
-    input_variables = Column(String, nullable=True)
     status = Column(String, nullable=False)
     Subject_id = Column(Integer, ForeignKey('Subject.id', ondelete='CASCADE'), nullable=False)
     subject = relationship('Subject', back_populates='tasks')
     solution = relationship('Solution', back_populates='task', uselist=False)
     testCases = relationship('TestCase', back_populates='task')
+    attempts = relationship('SolutionAttempts', back_populates='task')
 
 
 class TestCase(Base):

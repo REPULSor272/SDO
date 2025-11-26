@@ -1,6 +1,6 @@
 from typing import Union
 
-from app.db.db import Group, GroupSubject, Session, Subject, TestCase, User
+from app.db.db import Group, GroupSubject, Session, Subject, TestCase, User, SolutionAttempts
 from app.db.task_methods import is_task_completed
 from app.schemas.subject import SubjectInfo
 from app.db.db import Task
@@ -105,8 +105,6 @@ def create_laboratory(task: TaskWithTestCasesSchema):
                 name=task.name,
                 description=task.description,
                 Subject_id=task.subject_id,
-                teacher_formula=task.teacher_formula,
-                input_variables=task.input_variables,
                 status='unpublished'
             )
             session.add(lab)
@@ -279,8 +277,6 @@ def get_lab_details(lab_id: int) -> dict | None:
                 "id": lab.id,
                 "name": lab.name,
                 "description": lab.description,
-                "teacher_formula": lab.teacher_formula,
-                "input_variables": lab.input_variables,
                 "subject_id": lab.Subject_id,
                 "test_cases": []
             }
@@ -318,8 +314,6 @@ def edit_lab(task_id: int, lab: UpdateLabRequest):
             # Обновляем данные лабораторной работы
             lab_to_update.name = lab.task.name
             lab_to_update.description = lab.task.description
-            lab_to_update.teacher_formula = lab.task.teacher_formula
-            lab_to_update.input_variables = lab.task.input_variables
             lab_to_update.Subject_id = lab.task.subject_id
 
             # Удаляем старые тест-кейсы
@@ -341,4 +335,20 @@ def edit_lab(task_id: int, lab: UpdateLabRequest):
         except Exception as e:
             session.rollback()
             print(f"Ошибка при обновлении лабораторной работы: {e}")
+            return False
+
+def reset_attempts(lab_id: int, user_id: int):
+    """Сброс попыток (для учителей/админов)"""
+    with Session() as session:
+        try:
+            attempts = session.query(SolutionAttempts).filter(SolutionAttempts.User_id==user_id, SolutionAttempts.Task_id == lab_id).first()
+            if not attempts:
+                return False
+            else:
+                attempts.attempt_count = 0
+            session.commit()
+            return True
+        except Exception as e:
+            session.rollback()
+            print(f"Ошибка при изменении кол-ва попыток: {e}")
             return False
