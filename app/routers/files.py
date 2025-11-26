@@ -99,15 +99,12 @@ async def test_solution(task_id: int, authorization: str = Header(...)):
     # Выполнение тестирования
     res_check = await check_file(
         task_id,
-        task_data['teacher_formula'],
-        task_data['input_variables'],
         latest_solution.code,
         latest_solution.id
     )
 
     response = ResponseTest(
         status=res_check.execution_status,
-        formulas_output=res_check.formulas_output,
         code_output=res_check.code_output,
         execution_time=res_check.execution_time,
         code_length=res_check.code_length,

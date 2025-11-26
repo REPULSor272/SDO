@@ -7,7 +7,7 @@ from app.core.jwt_handler import decode_access_token
 from app.db.student_methods import get_groups_by_faculty, get_student_labs, get_student_labs_by_subject, \
     get_users_by_faculty, get_users_by_group
 from app.db.teacher_methods import get_teacher_subjects, get_students_data, create_laboratory, get_laboratories, \
-    delete_laboratory, toggle_laboratory_status, get_student_tasks_with_status, get_lab_details, edit_lab, get_laboratoy_with_status
+    delete_laboratory, toggle_laboratory_status, get_student_tasks_with_status, get_lab_details, edit_lab, get_laboratoy_with_status, reset_attempts
 from app.db.user_methods import get_groups_by_user_id, get_username_by_id, is_user_enrolled_in_subject
 from app.schemas.teachers import (
     StudentResponse,
@@ -312,8 +312,6 @@ async def get_unpublished_task_details(lab_id: int):
         id=labs.get("id"),
         name=labs.get("name"),
         description=labs.get("description"),
-        teacher_formula=labs.get("teacher_formula"),
-        input_variables=labs.get("input_variables"),
         subject_id=labs.get("subject_id"),
         test_cases=[{"id": case.get("id"), "inp": case["input"], "out": case["output"]} for case in labs.get("test_cases", [])]
 ).model_dump()
@@ -322,3 +320,37 @@ async def get_unpublished_task_details(lab_id: int):
         status_code=HTTPStatus.OK,
         content=response
     )
+
+# Сброс кол-ва попыток
+@router.post("/labs/{lab_id}/students/{student_id}/attemts/reset", summary ="Сброс кол-ва попыток для задачи и студента")
+async def post_reset_attempts(lab_id:int,student_id:int, authorization: str = Header(...)):
+    token = authorization[len("Bearer "):]
+    data = decode_access_token(token)
+    user_role = data.get('roleType')
+    if(user_role != "teacher"):
+        return JSONResponse(
+            status_code=HTTPStatus.UNAUTHORIZED,
+            content={"error": "только учитель может сбрасывать попытки"}
+        )
+    labs = get_lab_details(lab_id)
+    if not labs:
+        return JSONResponse(
+            status_code=HTTPStatus.NOT_FOUND,
+            content={"error": "Лабораторная работа не найдена"}
+        )
+    student = get_students_data(student_id)
+    if not student:
+        return JSONResponse(
+            status_code=HTTPStatus.NOT_FOUND,
+            content={"error": "Пользователь не найден"}
+        )
+    if reset_attempts(lab_id, student_id):
+        return JSONResponse(
+            status_code=HTTPStatus.OK,
+            content={"message": "Количество попыток успешно сброшенно"}
+        )
+    else:
+        return JSONResponse(
+            status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+            content={"message": "Ошибка при сбросе попыток"}
+        )

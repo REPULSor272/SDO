@@ -139,8 +139,6 @@ Accept: application/json
     "id": 1,
     "name": "Лабораторная работа №2. Python - разность двух чисел",
     "description": "Пример входных данных: 5 9\nПример выходных данных: -4\n",
-    "teacher_formula": "x - y",
-    "input_variables": "a, b",
     "subject_id": 1,
     "test_cases": [
       {
@@ -178,8 +176,6 @@ Accept: application/json
     "id": 1,
     "name": "Updated Вася",
     "description": "Updated",
-    "teacher_formula": "Updated",
-    "input_variables": "Updated",
     "subject_id": 1,
     "test_cases": [
       {
